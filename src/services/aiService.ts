@@ -29,6 +29,7 @@ export interface Scene {
   emotion: string;
   lighting: string;
   prompt: string;
+  imagePrompt: string;
   visualDetails: string;
 }
 
@@ -63,19 +64,24 @@ export const analyzeVideo = async (
     1. Extract a Master Character Profile if not provided.
     2. Split the video into 6-second scenes. 
        IMPORTANT: If the video is longer than 6 seconds, generate multiple 6-second prompts that flow logically.
-    3. For each scene, generate a "Grok Video Prompt" that is extremely detailed and includes standard Vietnamese dialogue.
+    3. For each scene, generate a "Grok Video Prompt" and a "Static Image Prompt".
     
-    GOLD STANDARD FOR PROMPT STRUCTURE:
-    - Describe the character's position and environment in detail.
-    - Include "Chi tiết hình ảnh": lighting, textures, colors, background elements.
-    - Include "Hành động": specific movements, facial expressions, lip-syncing.
-    - Include "Lời thoại": Standard Vietnamese dialogue wrapped in quotes.
+    PROMPT LANGUAGE RULES:
+    - Descriptions, Visual Details, Actions, and Camera settings MUST be in ENGLISH.
+    - Dialogue (Speech to Text) MUST be in standard VIETNAMESE.
+    - IMPORTANT: In the Grok Video Prompt, explicitly include an instruction for the AI to render the Vietnamese dialogue using standard Vietnamese fonts (e.g., "Render the following Vietnamese dialogue using standard Vietnamese fonts: '...'").
     
-    Example of the quality expected:
-    "Nhân vật Bánh Chưng Nhí đứng ở chính giữa khung hình, phía sau là bối cảnh gia đình sum vầy ngày Tết. Ánh sáng vàng ấm áp từ đèn lồng, kết cấu lá dong rõ nét, hạt cơm trắng ngần và hoa đào hồng nhạt phía sau. Bánh Chưng Nhí vẫy tay chào, cử động miệng nói chuyện linh hoạt và chỉ tay vào chiếc bảng đen. Nhân vật nói: 'Tớ là bánh chưng đây, Tết đến là nhà nào cũng có tớ trong nhà, tớ gói ghém hạt gạo thơm, đậu xanh bùi, thịt mỡ béo.'"
+    GOLD STANDARD FOR PROMPT STRUCTURE (English descriptions + Vietnamese dialogue):
+    - Character position & Environment (English).
+    - Visual details: lighting, textures, colors (English).
+    - Actions: gestures, expressions (English).
+    - Dialogue: Standard Vietnamese dialogue wrapped in quotes with font instruction.
+    
+    Example of the quality expected for Video Prompt:
+    "The character 'Bánh Chưng Nhí' stands in the center of the frame, with a warm family gathering background during Tet holiday. Warm golden lighting from lanterns, sharp textures of the green 'lá dong' leaves, bright white rice grains, and soft pink peach blossoms in the background. Bánh Chưng Nhí waves at the camera, mouth moving naturally as if speaking, pointing at a blackboard. Render the following Vietnamese dialogue using standard Vietnamese fonts: 'Tớ là bánh chưng đây, Tết đến là nhà nào cũng có tớ trong nhà, tớ gói ghém hạt gạo thơm, đậu xanh bùi, thịt mỡ béo.'"
 
-    4. Provide 3 "Viral Script Variations" with Hooks, Body, CTA, and Visual Hooks.
-    5. Provide marketing suggestions: title, hashtags, and similar ideas.
+    4. Provide 3 "Viral Script Variations" with Hooks, Body, CTA, and Visual Hooks (Vietnamese).
+    5. Provide marketing suggestions: title, hashtags, and similar ideas (Vietnamese).
     6. Ensure character consistency across all scenes.
     
     The output MUST be a valid JSON object matching the requested schema.
@@ -86,13 +92,13 @@ export const analyzeVideo = async (
     ${characterProfile ? `Use this FIXED character profile for consistency: ${JSON.stringify(characterProfile)}` : "Identify the main character and create a Master Character Profile."}
     
     Divide the video into 6-second segments. If the video exceeds 6s, create overlapping or sequential 6s segments to cover the full length.
-    For each segment, provide a "Grok Video Prompt" following this EXACT structure:
-    1. Vị trí nhân vật & Bối cảnh (Character position & Background).
-    2. Chi tiết hình ảnh (Visual details: lighting, textures, colors).
-    3. Hành động (Actions: gestures, lip-sync, expressions).
-    4. Lời thoại chuẩn tiếng Việt (Standard Vietnamese dialogue).
+    For each segment, provide:
+    - A "Grok Video Prompt" in ENGLISH (except for the dialogue).
+    - The dialogue MUST be in VIETNAMESE.
+    - Include the instruction: "Render the following Vietnamese dialogue using standard Vietnamese fonts: '...'" inside the prompt.
+    - A "Static Image Prompt" in ENGLISH.
 
-    Example of prompt quality: "Nhân vật [Tên] đứng ở [Vị trí], phía sau là [Bối cảnh]. Ánh sáng [Mô tả], kết cấu [Mô tả]. [Tên] [Hành động]. Nhân vật nói: '[Lời thoại]'"
+    Prompt structure: Position (English), Visual Details (English), Action (English), Vietnamese Dialogue with font instruction.
 
     Also, generate 3 "Viral Script Variations" (Kịch bản Viral) in Vietnamese:
     - Hook (Câu mở đầu thu hút)
@@ -158,9 +164,10 @@ export const analyzeVideo = async (
                 camera: { type: Type.STRING },
                 emotion: { type: Type.STRING },
                 lighting: { type: Type.STRING },
-                prompt: { type: Type.STRING }
+                prompt: { type: Type.STRING },
+                imagePrompt: { type: Type.STRING }
               },
-              required: ["number", "timestamp", "description", "prompt", "visualDetails"]
+              required: ["number", "timestamp", "description", "prompt", "imagePrompt", "visualDetails"]
             }
           },
           marketing: {

@@ -264,7 +264,8 @@ DIALOGUE: ${scene.dialogue}
 CAMERA: ${scene.camera}
 EMOTION: ${scene.emotion}
 LIGHTING: ${scene.lighting}
-GROK PROMPT: ${scene.prompt}
+GROK VIDEO PROMPT: ${scene.prompt}
+IMAGE PROMPT: ${scene.imagePrompt}
     `.trim();
     copyToClipboard(text, scene.number.toString(), 'all');
   };
@@ -332,6 +333,7 @@ VIRAL PROMPT: ${script.alternativeViralPrompt}
       camera: "Góc quay",
       dialogue: "Lời thoại",
       copy: "Copy Prompt",
+      copyImage: "Copy Ảnh",
       copyMarketing: "Copy Marketing",
       copyScript: "Copy Kịch bản",
       title: "Tiêu đề gợi ý",
@@ -341,7 +343,8 @@ VIRAL PROMPT: ${script.alternativeViralPrompt}
       body: "Nội dung (Body)",
       cta: "Kêu gọi (CTA)",
       vHook: "Hình ảnh Viral",
-      vPrompt: "Prompt Viral"
+      vPrompt: "Prompt Viral",
+      imagePrompt: "Prompt Ảnh tĩnh"
     },
     en: {
       upload: "Upload Video",
@@ -361,6 +364,7 @@ VIRAL PROMPT: ${script.alternativeViralPrompt}
       camera: "Camera",
       dialogue: "Dialogue",
       copy: "Copy Prompt",
+      copyImage: "Copy Image",
       copyMarketing: "Copy Marketing",
       copyScript: "Copy Script",
       title: "Suggested Title",
@@ -370,7 +374,8 @@ VIRAL PROMPT: ${script.alternativeViralPrompt}
       body: "Body",
       cta: "Call to Action",
       vHook: "Visual Hook",
-      vPrompt: "Viral Prompt"
+      vPrompt: "Viral Prompt",
+      imagePrompt: "Static Image Prompt"
     }
   }[lang];
 
@@ -574,6 +579,13 @@ VIRAL PROMPT: ${script.alternativeViralPrompt}
                           {copyStatus?.id === scene.number.toString() && copyStatus?.type === 'prompt' ? <Check size={10} /> : <Copy size={10} />}
                           {t.copy}
                         </button>
+                        <button 
+                          onClick={() => copyToClipboard(scene.imagePrompt, scene.number.toString(), 'image')}
+                          className="flex items-center gap-1.5 px-2 py-1 rounded bg-amber-500/10 text-amber-500 hover:bg-amber-500 hover:text-black transition-all text-[9px] font-bold uppercase"
+                        >
+                          {copyStatus?.id === scene.number.toString() && copyStatus?.type === 'image' ? <Check size={10} /> : <Copy size={10} />}
+                          {t.copyImage}
+                        </button>
                       </div>
                     </div>
 
@@ -599,9 +611,21 @@ VIRAL PROMPT: ${script.alternativeViralPrompt}
                       </div>
                     </div>
 
-                    <div className="bg-black/40 rounded-lg p-3 border border-white/5">
-                      <p className="text-[9px] text-zinc-500 uppercase font-bold mb-1">Grok Prompt</p>
-                      <p className="text-[11px] font-mono text-zinc-400">{scene.prompt}</p>
+                    <div className="space-y-3">
+                      <div className="bg-black/40 rounded-lg p-3 border border-white/5">
+                        <p className="text-[9px] text-zinc-500 uppercase font-bold mb-1 flex items-center gap-1">
+                          <Video size={10} className="text-emerald-500" />
+                          Grok Video Prompt
+                        </p>
+                        <p className="text-[11px] font-mono text-zinc-400">{scene.prompt}</p>
+                      </div>
+                      <div className="bg-black/40 rounded-lg p-3 border border-white/5">
+                        <p className="text-[9px] text-zinc-500 uppercase font-bold mb-1 flex items-center gap-1">
+                          <Sparkles size={10} className="text-amber-500" />
+                          {t.imagePrompt}
+                        </p>
+                        <p className="text-[11px] font-mono text-zinc-500">{scene.imagePrompt}</p>
+                      </div>
                     </div>
                   </motion.div>
                 ))}
