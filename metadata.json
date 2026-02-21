@@ -1,0 +1,8 @@
+{
+  "name": "TonyHoaiVu",
+  "description": "Professional AI tool to analyze videos and generate consistent character prompts for Grok and other AI video generators. Copyright by TonyHoaiVu.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
