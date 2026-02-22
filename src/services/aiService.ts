@@ -51,8 +51,7 @@ export interface AnalysisResult {
 }
 
 export const analyzeVideo = async (
-  videoBase64: string,
-  mimeType: string,
+  frames: { data: string, mimeType: string }[],
   characterProfile?: CharacterProfile
 ): Promise<AnalysisResult> => {
   const ai = getAI();
@@ -60,10 +59,9 @@ export const analyzeVideo = async (
 
   const systemInstruction = `
     You are a Senior AI Video Director, Content Strategist, and Viral Growth Expert. 
-    Your task is to analyze the provided video and:
+    Your task is to analyze the provided sequence of frames from a video and:
     1. Extract a Master Character Profile if not provided.
-    2. Split the video into 6-second scenes. 
-       IMPORTANT: If the video is longer than 6 seconds, generate multiple 6-second prompts that flow logically.
+    2. Split the video into 6-second scenes based on the visual progression in the frames. 
     3. For each scene, generate a "Grok Video Prompt" and a "Static Image Prompt".
     
     PROMPT LANGUAGE RULES:
@@ -88,10 +86,10 @@ export const analyzeVideo = async (
   `;
 
   const prompt = `
-    Analyze this video in depth for viral potential. 
+    Analyze these video frames in depth for viral potential. 
     ${characterProfile ? `Use this FIXED character profile for consistency: ${JSON.stringify(characterProfile)}` : "Identify the main character and create a Master Character Profile."}
     
-    Divide the video into 6-second segments. If the video exceeds 6s, create overlapping or sequential 6s segments to cover the full length.
+    Based on these frames, divide the content into 6-second segments.
     For each segment, provide:
     - A "Grok Video Prompt" in ENGLISH (except for the dialogue).
     - The dialogue MUST be in VIETNAMESE.
@@ -113,18 +111,20 @@ export const analyzeVideo = async (
     - 3 follow-up content ideas.
   `;
 
+  const imageParts = frames.map(frame => ({
+    inlineData: {
+      mimeType: frame.mimeType,
+      data: frame.data,
+    },
+  }));
+
   const response = await ai.models.generateContent({
     model,
     contents: [
       {
         parts: [
           { text: prompt },
-          {
-            inlineData: {
-              mimeType,
-              data: videoBase64,
-            },
-          },
+          ...imageParts
         ],
       },
     ],

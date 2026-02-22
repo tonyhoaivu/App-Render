@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { analyzeVideo, CharacterProfile, Scene, AnalysisResult } from './services/aiService';
+import { extractFrames } from './services/mediaService';
 
 // --- Components ---
 
@@ -257,30 +258,25 @@ export default function App() {
     setError(null);
     
     try {
-      if (videoFile.size > 50 * 1024 * 1024) {
-        throw new Error(lang === 'vi' ? "Video quá lớn (tối đa 50MB)" : "Video too large (max 50MB)");
+      // Step 1: Extract frames from video
+      // We extract 1 frame per 2 seconds, max 12 frames to keep payload reasonable
+      const frames = await extractFrames(videoFile, 2, 12);
+      
+      if (frames.length === 0) {
+        throw new Error(lang === 'vi' ? "Không thể trích xuất hình ảnh từ video" : "Could not extract frames from video");
       }
 
-      const reader = new FileReader();
-      reader.readAsDataURL(videoFile);
-      reader.onload = async () => {
-        try {
-          const base64 = (reader.result as string).split(',')[1];
-          const result = await analyzeVideo(base64, videoFile.type, character || undefined);
-          
-          setScenes(result.scenes);
-          setCharacter(result.character);
-          setMarketing(result.marketing);
-          setViralScripts(result.viralScripts);
-          setIsAnalyzing(false);
-        } catch (innerErr: any) {
-          console.error("Analysis Error:", innerErr);
-          setError(innerErr.message || "Analysis failed");
-          setIsAnalyzing(false);
-        }
-      };
+      // Step 2: Send frames to AI for analysis
+      const result = await analyzeVideo(frames, character || undefined);
+      
+      setScenes(result.scenes);
+      setCharacter(result.character);
+      setMarketing(result.marketing);
+      setViralScripts(result.viralScripts);
+      setIsAnalyzing(false);
     } catch (err: any) {
-      setError(err.message || "An error occurred");
+      console.error("Analysis Error:", err);
+      setError(err.message || (lang === 'vi' ? "Phân tích thất bại" : "Analysis failed"));
       setIsAnalyzing(false);
     }
   };
