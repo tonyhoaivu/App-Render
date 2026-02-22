@@ -63,7 +63,7 @@ const Header = ({ lang, setLang }: { lang: 'vi' | 'en', setLang: (l: 'vi' | 'en'
   </header>
 );
 
-const CharacterPanel = ({ profile, setProfile, lang }: { profile: CharacterProfile | null, setProfile: (p: CharacterProfile) => void, lang: 'vi' | 'en' }) => {
+const CharacterPanel = ({ profile, setProfile, lang, onSaveToStorage }: { profile: CharacterProfile | null, setProfile: (p: CharacterProfile) => void, lang: 'vi' | 'en', onSaveToStorage: () => void }) => {
   const [isEditing, setIsEditing] = useState(!profile);
 
   const t = {
@@ -80,7 +80,8 @@ const CharacterPanel = ({ profile, setProfile, lang }: { profile: CharacterProfi
       style: "Phong cách",
       seed: "Seed",
       edit: "Chỉnh sửa",
-      save: "Lưu hồ sơ"
+      save: "Xong",
+      backup: "Lưu hồ sơ"
     },
     en: {
       title: "MASTER CHARACTER PROFILE",
@@ -95,7 +96,8 @@ const CharacterPanel = ({ profile, setProfile, lang }: { profile: CharacterProfi
       style: "Style",
       seed: "Seed",
       edit: "Edit",
-      save: "Save Profile"
+      save: "Done",
+      backup: "Save Profile"
     }
   }[lang];
 
@@ -109,12 +111,21 @@ const CharacterPanel = ({ profile, setProfile, lang }: { profile: CharacterProfi
             <p className="text-[10px] text-zinc-500">{t.subtitle}</p>
           </div>
         </div>
-        <button 
-          onClick={() => setIsEditing(!isEditing)}
-          className="text-[10px] uppercase font-bold text-emerald-500 hover:underline"
-        >
-          {isEditing ? t.save : t.edit}
-        </button>
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={onSaveToStorage}
+            className="text-[10px] uppercase font-bold text-amber-500 hover:underline flex items-center gap-1"
+          >
+            <Download size={12} />
+            {t.backup}
+          </button>
+          <button 
+            onClick={() => setIsEditing(!isEditing)}
+            className="text-[10px] uppercase font-bold text-emerald-500 hover:underline"
+          >
+            {isEditing ? t.save : t.edit}
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
@@ -209,7 +220,25 @@ export default function App() {
         ? "Thiếu GEMINI_API_KEY. Vui lòng thiết lập trong Environment Variables trên Vercel và redeploy." 
         : "GEMINI_API_KEY is missing. Please set it in Vercel Environment Variables and redeploy.");
     }
+
+    // Load character profile from storage
+    const savedProfile = localStorage.getItem('master_character_profile');
+    if (savedProfile) {
+      try {
+        setCharacter(JSON.parse(savedProfile));
+      } catch (e) {
+        console.error("Failed to load profile", e);
+      }
+    }
   }, [lang]);
+
+  const saveProfileToStorage = () => {
+    if (character) {
+      localStorage.setItem('master_character_profile', JSON.stringify(character));
+      setCopyStatus({ id: 'profile', type: 'save' });
+      setTimeout(() => setCopyStatus(null), 2000);
+    }
+  };
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -395,7 +424,12 @@ VIRAL PROMPT: ${script.alternativeViralPrompt}
       <main className="flex-1 p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 overflow-hidden">
         {/* LEFT COLUMN */}
         <div className="lg:col-span-5 flex flex-col gap-6 overflow-y-auto custom-scrollbar pr-2">
-          <CharacterPanel profile={character} setProfile={setCharacter} lang={lang} />
+          <CharacterPanel 
+            profile={character} 
+            setProfile={setCharacter} 
+            lang={lang} 
+            onSaveToStorage={saveProfileToStorage}
+          />
           
           <div className="glass-panel p-4 flex flex-col">
             <div className="flex items-center justify-between mb-4">
