@@ -8,13 +8,15 @@ This contains everything you need to run your app locally.
 
 View your app in AI Studio: https://ai.studio/apps/4b650e44-f367-40f0-8633-442c35d268d3
 
-## Run Locally
+## Deployment on Vercel
 
-**Prerequisites:**  Node.js
+1. **Set Environment Variables**: In your Vercel project settings, add `GEMINI_API_KEY` with your Google Gemini API key.
+2. **Build Configuration**: Ensure the build command is `npm run build` and the output directory is `dist`.
+3. **Redeploy**: You must redeploy after setting the environment variable so Vite can bake the key into the client-side bundle.
 
+## Troubleshooting
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+- **Analysis not starting**: Ensure you have set the `GEMINI_API_KEY` in your environment.
+- **Video too large**: The app supports videos up to 50MB. Larger videos may fail due to browser memory limits when encoding to Base64.
+- **"GEMINI_API_KEY is not set" error**: This means the API key was not available during the build process. Check your Vercel/Local environment variables.
+- **CORS Errors**: Ensure your Gemini API key has the correct permissions and is not restricted to specific origins that exclude your deployment URL.

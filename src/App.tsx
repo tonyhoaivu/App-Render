@@ -427,6 +427,13 @@ VIRAL PROMPT: ${script.alternativeViralPrompt}
               {isAnalyzing ? <Loader2 className="animate-spin" size={18} /> : <Zap size={18} />}
               {isAnalyzing ? t.analyzing : t.analyze}
             </button>
+
+            {error && (
+              <div className="mt-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg flex items-start gap-2 text-red-400 text-xs animate-pulse">
+                <AlertCircle size={14} className="shrink-0 mt-0.5" />
+                <p>{error}</p>
+              </div>
+            )}
           </div>
 
           {/* Marketing Suggestions */}
