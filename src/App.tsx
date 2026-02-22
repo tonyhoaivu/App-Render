@@ -26,7 +26,7 @@ import {
   Lightbulb,
   ClipboardList
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { analyzeVideo, CharacterProfile, Scene, AnalysisResult } from './services/aiService';
 
 // --- Components ---
@@ -201,6 +201,15 @@ export default function App() {
   const [viralScripts, setViralScripts] = useState<AnalysisResult['viralScripts']>([]);
   const [error, setError] = useState<string | null>(null);
   const [copyStatus, setCopyStatus] = useState<{id: string, type: string} | null>(null);
+
+  // Check for API key on mount
+  React.useEffect(() => {
+    if (!process.env.GEMINI_API_KEY) {
+      setError(lang === 'vi' 
+        ? "Thiếu GEMINI_API_KEY. Vui lòng thiết lập trong Environment Variables trên Vercel và redeploy." 
+        : "GEMINI_API_KEY is missing. Please set it in Vercel Environment Variables and redeploy.");
+    }
+  }, [lang]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
